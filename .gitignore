@@ -1,0 +1,7 @@
+*.class
+*.lock
+*.log
+*.iml
+*.idea/
+*.dart_tool/
+*.gen/
