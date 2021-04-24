@@ -16,6 +16,24 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(title: 'Home Page'),
+      routes: {
+        ExtractArgumentsScreen.routeName: (context) => ExtractArgumentsScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == PassArgumentsScreen.routeName) {
+          final CustomArguments args = settings.arguments as CustomArguments;
+          return MaterialPageRoute(
+            builder: (context) {
+              return PassArgumentsScreen(
+                title: args.title,
+                message: args.message,
+              );
+            },
+          );
+        }
+        assert(false, 'Need to implement ${settings.name}');
+        return null;
+      },
     );
   }
 }
@@ -61,15 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
-            ElevatedButton(
-              child: Text('Navigate to next route'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SecondRoute()),
-                );
-              },
-            ),
+            SelectionButton(),
             ElevatedButton(
               onPressed: () {
                 _ModalBottomSheetDemo()._showModalBottomSheet(context);
@@ -126,12 +136,44 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class SecondRoute extends StatelessWidget {
+class SelectionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        _navigateAndDisplaySelection(context);
+      },
+      child: Text('Navigate to next route'),
+    );
+  }
+
+  _navigateAndDisplaySelection(BuildContext context) async {
+    final result = await Navigator.pushNamed(
+      context,
+      PassArgumentsScreen.routeName,
+      arguments: CustomArguments(
+        'Accept Arguments Screen',
+        'This message is extracted in the onGenerateRoute function.',
+      ),
+    );
+
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text("$result")));
+  }
+}
+
+class ExtractArgumentsScreen extends StatelessWidget {
+  static const routeName = '/extractArguments';
+
+  @override
+  Widget build(BuildContext context) {
+    final CustomArguments args =
+        ModalRoute.of(context).settings.arguments as CustomArguments;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Second Route"),
+        title: Text("Second Route : ${args.title}"),
       ),
       body: Center(
         child: ElevatedButton(
@@ -143,6 +185,60 @@ class SecondRoute extends StatelessWidget {
       ),
     );
   }
+}
+
+class PassArgumentsScreen extends StatelessWidget {
+  static const routeName = '/passArguments';
+
+  final String title;
+  final String message;
+
+  const PassArgumentsScreen({
+    key,
+    @required this.title,
+    @required this.message,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context, 'Yep!');
+                },
+                child: Text('Yep!'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context, 'Nope.');
+                },
+                child: Text('Nope.'),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CustomArguments {
+  final String title;
+  final String message;
+
+  CustomArguments(this.title, this.message);
 }
 
 class _BottomSheetContent extends StatelessWidget {
@@ -206,15 +302,9 @@ Future<List<Joke>> fetchAlbum() async {
       await http.get(Uri.https('official-joke-api.appspot.com', 'jokes/ten'));
 
   if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-
     Iterable iterable = jsonDecode(response.body);
     return List.from(iterable.map((data) => Joke.fromJson(data)));
-
   } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
     throw Exception('Failed to load album');
   }
 }
