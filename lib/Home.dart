@@ -34,37 +34,48 @@ class _MyHomePageState extends State<HomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the Add button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-            SelectionButton(),
-            ElevatedButton(
-              onPressed: () {
-                _ModalBottomSheetDemo()._showModalBottomSheet(context);
-              },
-              child: Text("BottomSheetButtonText"),
-            ),
-            FutureBuilder<List<Joke>>(
-              future: futureAlbum,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Text(snapshot.data[0].setup);
-                } else if (snapshot.hasError) {
-                  return Text("${snapshot.error}");
-                }
+        child: Padding(
+          padding: const EdgeInsets.only(top: 16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                'Welcome',
+                style: TextStyle(color: Colors.blue, fontSize: 25),
+              ),
+              // Text('Button clicked this many times:',),
+              // Text('$_counter', style: Theme.of(context).textTheme.headline4,),
+              SizedBox(width: double.infinity, child: SelectionButton()),
+              SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _ModalBottomSheetDemo()._showModalBottomSheet(context);
+                    },
+                    child: Text("BottomSheetButtonText"),
+                  )),
+              Text(
+                'Jokes: ',
+                style: TextStyle(color: Colors.blue, fontSize: 25),
+              ),
 
-                // By default, show a loading spinner.
-                return CircularProgressIndicator();
-              },
-            )
-          ],
+              FutureBuilder<List<Joke>>(
+                future: futureAlbum,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final lItems = snapshot.data;
+                    return _myListView(context, lItems);
+                  } else if (snapshot.hasError) {
+                    return Text("${snapshot.error}");
+                  }
+
+                  // By default, show a loading spinner.
+                  return CircularProgressIndicator();
+                },
+              )
+            ],
+          ),
         ),
       ),
       drawer: Drawer(
@@ -99,6 +110,23 @@ class _MyHomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+Expanded _myListView(BuildContext context, List<Joke> jokes) {
+  return Expanded(
+      child: Container(
+    width: double.infinity,
+    height: 200,
+    child: ListView.builder(
+      itemBuilder: (context, position) {
+        return Card(
+            child: Text(
+                "Q: ${jokes[position].setup} \n A: ${jokes[position].punchline}",
+                style: TextStyle(color: Colors.black, fontSize: 22)));
+      },
+      itemCount: jokes.length,
+    ),
+  ));
 }
 
 class SelectionButton extends StatelessWidget {
