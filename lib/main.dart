@@ -113,7 +113,7 @@ class _LoginDemoState extends State<LoginDemo> {
             SizedBox(
               height: 130,
             ),
-            Text('New User? Create Account')
+            Text('Create Account')
           ],
         ),
       ),
