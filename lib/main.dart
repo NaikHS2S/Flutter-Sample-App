@@ -8,8 +8,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -32,7 +30,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  Future<Album> futureAlbum;
+  Future<List<Joke>> futureAlbum;
 
   @override
   void initState() {
@@ -78,11 +76,11 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Text("BottomSheetButtonText"),
             ),
-            FutureBuilder<Album>(
+            FutureBuilder<List<Joke>>(
               future: futureAlbum,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  return Text(snapshot.data?.title);
+                  return Text(snapshot.data[0].setup);
                 } else if (snapshot.hasError) {
                   return Text("${snapshot.error}");
                 }
@@ -203,14 +201,17 @@ class _ModalBottomSheetDemo extends StatelessWidget {
   }
 }
 
-Future<Album> fetchAlbum() async {
+Future<List<Joke>> fetchAlbum() async {
   final response =
-  await http.get(Uri.https('jsonplaceholder.typicode.com', 'albums/1'));
+      await http.get(Uri.https('official-joke-api.appspot.com', 'jokes/ten'));
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
     // then parse the JSON.
-    return Album.fromJson(jsonDecode(response.body));
+
+    Iterable iterable = jsonDecode(response.body);
+    return List.from(iterable.map((data) => Joke.fromJson(data)));
+
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
@@ -218,18 +219,24 @@ Future<Album> fetchAlbum() async {
   }
 }
 
-class Album {
-  final int userId;
+class Joke {
   final int id;
-  final String title;
+  final String type;
+  final String setup;
+  final String punchline;
 
-  Album({@required this.userId, @required this.id, @required this.title});
+  Joke(
+      {@required this.id,
+      @required this.type,
+      @required this.setup,
+      @required this.punchline});
 
-  factory Album.fromJson(Map<String, dynamic> json) {
-    return Album(
-      userId: json['userId'],
+  factory Joke.fromJson(Map<String, dynamic> json) {
+    return Joke(
       id: json['id'],
-      title: json['title'],
+      type: json['type'],
+      setup: json['setup'],
+      punchline: json['punchline'],
     );
   }
 }
