@@ -260,6 +260,12 @@ class _BottomSheetContent extends StatelessWidget {
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text("Item ${index + 1}"),
+                  onTap:(){
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context)
+                      ..removeCurrentSnackBar()
+                      ..showSnackBar(SnackBar(content: Text("Item ${index + 1} clicked")));
+                  },
                 );
               },
             ),
