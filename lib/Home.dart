@@ -24,8 +24,7 @@ class _MyHomePageState extends State<HomePage>
   void initState() {
     super.initState();
     futureAlbum = fetchJoke();
-    controller =
-        AnimationController(duration: const Duration(seconds: 2), vsync: this);
+    controller = AnimationController(duration: const Duration(seconds: 2), vsync: this);
     animation = Tween<double>(begin: 0, end: 300).animate(controller)
       ..addListener(() {
         setState(() {
@@ -57,23 +56,21 @@ class _MyHomePageState extends State<HomePage>
         child: Padding(
           padding: const EdgeInsets.only(top: 16.0),
           child: Container(
-            margin: EdgeInsets.symmetric(vertical: 10),
+            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
             height: double.infinity,
             width: double.infinity,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-
                 SizedBox(
-                  height: animation.value,
-                  width: animation.value,
+                  height: animation.value/2,
+                  width:  double.infinity,
                   child: FittedBox(child:Text(
                     '$welcomeText',
                     style: TextStyle(color: Colors.blue, fontSize: 25),
                   )),
-                )
-     ,
+                ),
                 // Text('Button clicked this many times:',),
                 // Text('$_counter', style: Theme.of(context).textTheme.headline4,),
                 SizedBox(width: double.infinity, child: SelectionButton()),
