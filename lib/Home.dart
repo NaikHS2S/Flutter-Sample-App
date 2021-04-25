@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/animation.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -11,20 +12,39 @@ class HomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<HomePage> {
+class _MyHomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   int _counter = 0;
   Future<List<Joke>> futureAlbum;
+  Animation<double> animation;
+  AnimationController controller;
+  String welcomeText = "";
 
   @override
   void initState() {
     super.initState();
     futureAlbum = fetchJoke();
+    controller =
+        AnimationController(duration: const Duration(seconds: 2), vsync: this);
+    animation = Tween<double>(begin: 0, end: 300).animate(controller)
+      ..addListener(() {
+        setState(() {
+          welcomeText = 'Welcome';
+        });
+      });
+    controller.forward();
   }
 
   void _incrementCounter() {
     setState(() {
       _counter++;
     });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -36,45 +56,56 @@ class _MyHomePageState extends State<HomePage> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.only(top: 16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                'Welcome',
-                style: TextStyle(color: Colors.blue, fontSize: 25),
-              ),
-              // Text('Button clicked this many times:',),
-              // Text('$_counter', style: Theme.of(context).textTheme.headline4,),
-              SizedBox(width: double.infinity, child: SelectionButton()),
-              SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _ModalBottomSheetDemo()._showModalBottomSheet(context);
-                    },
-                    child: Text("BottomSheetButtonText"),
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 10),
+            height: double.infinity,
+            width: double.infinity,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+
+                SizedBox(
+                  height: animation.value,
+                  width: animation.value,
+                  child: FittedBox(child:Text(
+                    '$welcomeText',
+                    style: TextStyle(color: Colors.blue, fontSize: 25),
                   )),
-              Text(
-                'Jokes: ',
-                style: TextStyle(color: Colors.blue, fontSize: 25),
-              ),
+                )
+     ,
+                // Text('Button clicked this many times:',),
+                // Text('$_counter', style: Theme.of(context).textTheme.headline4,),
+                SizedBox(width: double.infinity, child: SelectionButton()),
+                SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _ModalBottomSheetDemo()._showModalBottomSheet(context);
+                      },
+                      child: Text("BottomSheetButtonText"),
+                    )),
+                Text(
+                  'Jokes: ',
+                  style: TextStyle(color: Colors.blue, fontSize: 25),
+                ),
 
-              FutureBuilder<List<Joke>>(
-                future: futureAlbum,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    final lItems = snapshot.data;
-                    return _myListView(context, lItems);
-                  } else if (snapshot.hasError) {
-                    return Text("${snapshot.error}");
-                  }
+                FutureBuilder<List<Joke>>(
+                  future: futureAlbum,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final lItems = snapshot.data;
+                      return _myListView(context, lItems);
+                    } else if (snapshot.hasError) {
+                      return Text("${snapshot.error}");
+                    }
 
-                  // By default, show a loading spinner.
-                  return CircularProgressIndicator();
-                },
-              )
-            ],
+                    // By default, show a loading spinner.
+                    return CircularProgressIndicator();
+                  },
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -194,39 +225,40 @@ class PassArgumentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(child: Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, 'Yep!');
-                },
-                child: Text('Yep!'),
-              ),
+    return WillPopScope(
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(title),
+          ),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context, 'Yep!');
+                    },
+                    child: Text('Yep!'),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context, 'Nope.');
+                    },
+                    child: Text('Nope.'),
+                  ),
+                )
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, 'Nope.');
-                },
-                child: Text('Nope.'),
-              ),
-            )
-          ],
+          ),
         ),
-      ),
-    ), onWillPop:(){
-       Navigator.pop(context, 'Back Press');
-    });
-
+        onWillPop: () {
+          Navigator.pop(context, 'Back Press');
+        });
   }
 }
 
@@ -260,11 +292,12 @@ class _BottomSheetContent extends StatelessWidget {
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text("Item ${index + 1}"),
-                  onTap:(){
+                  onTap: () {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context)
                       ..removeCurrentSnackBar()
-                      ..showSnackBar(SnackBar(content: Text("Item ${index + 1} clicked")));
+                      ..showSnackBar(
+                          SnackBar(content: Text("Item ${index + 1} clicked")));
                   },
                 );
               },
