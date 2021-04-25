@@ -18,7 +18,7 @@ class _MyHomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    futureAlbum = fetchAlbum();
+    futureAlbum = fetchJoke();
   }
 
   void _incrementCounter() {
@@ -194,7 +194,7 @@ class PassArgumentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(child: Scaffold(
       appBar: AppBar(
         title: Text(title),
       ),
@@ -223,7 +223,10 @@ class PassArgumentsScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ), onWillPop:(){
+       Navigator.pop(context, 'Back Press');
+    });
+
   }
 }
 
@@ -290,13 +293,12 @@ class _ModalBottomSheetDemo extends StatelessWidget {
   }
 }
 
-Future<List<Joke>> fetchAlbum() async {
+Future<List<Joke>> fetchJoke() async {
   final response =
       await http.get(Uri.https('official-joke-api.appspot.com', 'jokes/ten'));
 
   if (response.statusCode == 200) {
-    Iterable iterable = jsonDecode(response.body);
-    return List.from(iterable.map((data) => Joke.fromJson(data)));
+    return List.from(jsonDecode(response.body).map((it) => Joke.fromJson(it)));
   } else {
     throw Exception('Failed to load album');
   }
