@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/animation.dart';
+import 'package:provider/provider.dart';
+import 'Model.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -14,7 +16,6 @@ class HomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  int _counter = 0;
   Future<List<Joke>> futureAlbum;
   Animation<double> animation;
   AnimationController controller;
@@ -35,9 +36,7 @@ class _MyHomePageState extends State<HomePage>
   }
 
   void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+    Provider.of<ModelClass>(context, listen: false).increment();
   }
 
   @override
@@ -64,15 +63,26 @@ class _MyHomePageState extends State<HomePage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 SizedBox(
-                  height: animation.value/2,
-                  width:  double.infinity,
-                  child: FittedBox(child:Text(
+                  height: animation.value / 2,
+                  width: double.infinity,
+                  child: FittedBox(
+                      child: Text(
                     '$welcomeText',
                     style: TextStyle(color: Colors.blue, fontSize: 25),
                   )),
                 ),
-                // Text('Button clicked this many times:',),
-                // Text('$_counter', style: Theme.of(context).textTheme.headline4,),
+                Consumer<ModelClass>(
+                  builder: (context, modelClass, child) => Stack(
+                    children: [
+                      if (child != null) child,
+                      Text(
+                        getTextToDisplay(context),
+                        style: Theme.of(context).textTheme.headline6,
+                      ),
+                    ],
+                  ),
+                  //child: SomeExpensiveWidget(),
+                ),
                 SizedBox(width: double.infinity, child: SelectionButton()),
                 SizedBox(
                     width: double.infinity,
@@ -86,7 +96,6 @@ class _MyHomePageState extends State<HomePage>
                   'Jokes: ',
                   style: TextStyle(color: Colors.blue, fontSize: 25),
                 ),
-
                 FutureBuilder<List<Joke>>(
                   future: futureAlbum,
                   builder: (context, snapshot) {
@@ -137,6 +146,21 @@ class _MyHomePageState extends State<HomePage>
         child: Icon(Icons.add),
       ),
     );
+  }
+
+  String getTextToDisplay(BuildContext context) {
+
+    final counter = Provider.of<ModelClass>(context, listen: false).counter;
+    switch(counter){
+      case 0:
+        return 'FloatingActionButton is not clicked yet.';
+      case 1:
+        return 'FloatingActionButton is clicked once.';
+      default:
+        return 'FloatingActionButton is clicked $counter times.';
+    }
+
+
   }
 }
 

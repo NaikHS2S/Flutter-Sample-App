@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'Home.dart';
+import 'Model.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ModelClass(),
+      child: MyApp(),
+    ));
+
+    //Or can be used as
+    // MultiProvider(
+    //   providers: [
+    //         ChangeNotifierProvider(create: (context) => ModelClass()),
+    //   ],
+    //   child: MyApp(),
+    // ));
+
 }
 
 class MyApp extends StatelessWidget {
@@ -58,9 +73,6 @@ class _LoginDemoState extends State<LoginDemo> {
                 child: Container(
                     width: 200,
                     height: 150,
-                    /*decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(50.0)),*/
                     child: Image.asset('asset/images/ic_launcher.png')),
               ),
             ),
