@@ -50,6 +50,13 @@ class SQLiteHelper{
      whereArgs: [id],
    );
  }
+
+ deleteAll() async {
+   final db = await getDatabase();
+   db.rawDelete("Delete * from dogs");
+ }
+
+
 }
 
 
