@@ -36,6 +36,7 @@ dependencies:
   sqflite: any
   path_provider: any
   shared_preferences: any
+  flutter_secure_storage: ^4.2.0
 
 dev_dependencies:
   flutter_test:
