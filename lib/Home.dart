@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:async';
-import 'dart:convert';
+import 'package:flutter_app/api/Services.dart';
+import 'package:flutter_app/bloc/CounterBloc.dart';
+import 'package:flutter_app/events/CounterEvent.dart';
+import 'package:flutter_app/model/CustomArguments.dart';
+import 'package:flutter_app/model/Joke.dart';
+import 'package:flutter_app/state/CounterState.dart';
+import 'package:flutter_app/bloc/UserBloc.dart';
+import 'package:flutter_app/events/UserInfoEvents.dart';
+import 'package:flutter_app/state/UserState.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/animation.dart';
 import 'package:provider/provider.dart';
-import 'Model.dart';
+import 'package:flutter_app/model/CounterModel.dart';
+import 'dart:async';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -16,27 +24,43 @@ class HomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  Future<List<Joke>> futureAlbum;
+  Future<List<Joke>> futureJokes;
   Animation<double> animation;
   AnimationController controller;
-  String welcomeText = "";
+  String welcomeText = 'Welcome';
+  bool selected = false;
 
   @override
   void initState() {
     super.initState();
-    futureAlbum = fetchJoke();
-    controller = AnimationController(duration: const Duration(seconds: 2), vsync: this);
-    animation = Tween<double>(begin: 0, end: 300).animate(controller)
+    futureJokes = UserServices().fetchJoke();
+    _loadAlbums();
+    controller =
+        AnimationController(duration: const Duration(seconds: 2), vsync: this);
+    animation = Tween<double>(begin: 0, end: 220).animate(controller)
       ..addListener(() {
-        setState(() {
-          welcomeText = 'Welcome';
-        });
-      });
+        // setState(() {
+        //   welcomeText = 'Welcome';
+        // });
+      })
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          //controller.reverse();
+        } else if (status == AnimationStatus.dismissed) {
+          //controller.forward();
+        }
+      })
+      ..addStatusListener((state) => print('$state'));
+
     controller.forward();
   }
 
   void _incrementCounter() {
-    Provider.of<ModelClass>(context, listen: false).increment();
+    Provider.of<CounterModel>(context, listen: false).increment();
+  }
+
+  _loadAlbums() async {
+    BlocProvider.of<UserBloc>(context).add(UserInfoEvents.fetchUser);
   }
 
   @override
@@ -50,67 +74,92 @@ class _MyHomePageState extends State<HomePage>
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_alert),
+            tooltip: 'Show Snack bar',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('This is a Snack bar.')));
+            },
+          )
+        ],
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 16.0),
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            height: double.infinity,
-            width: double.infinity,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(
-                  height: animation.value / 2,
-                  width: double.infinity,
-                  child: FittedBox(
-                      child: Text(
-                    '$welcomeText',
-                    style: TextStyle(color: Colors.blue, fontSize: 25),
-                  )),
-                ),
-                Consumer<ModelClass>(
-                  builder: (context, modelClass, child) => Stack(
-                    children: [
-                      if (child != null) child,
-                      Text(
-                        getTextToDisplay(context),
-                        style: Theme.of(context).textTheme.headline6,
-                      ),
-                    ],
-                  ),
-                  //child: SomeExpensiveWidget(),
-                ),
-                SizedBox(width: double.infinity, child: SelectionButton()),
-                SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _ModalBottomSheetDemo()._showModalBottomSheet(context);
-                      },
-                      child: Text("BottomSheetButtonText"),
-                    )),
-                Text(
-                  'Jokes: ',
-                  style: TextStyle(color: Colors.blue, fontSize: 25),
-                ),
-                FutureBuilder<List<Joke>>(
-                  future: futureAlbum,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      final lItems = snapshot.data;
-                      return _myListView(context, lItems);
-                    } else if (snapshot.hasError) {
-                      return Text("${snapshot.error}");
-                    }
+      body: GestureDetector(
+        onTap: () {
+          setState(() {
+            selected = !selected;
+          });
+        },
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              height: double.infinity,
+              width: double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
 
-                    // By default, show a loading spinner.
-                    return CircularProgressIndicator();
-                  },
-                )
-              ],
+                  BlocBuilder<UserBloc, UserState>(
+                      builder: (BuildContext context, UserState state) {
+                        if (state is UserListError) {
+                          return Text(state.error.message, style: TextStyle(color: Colors.amber, fontSize: 18));
+                        }
+                        if (state is Loaded) {
+                          return Text(state.userInfoList[0].title, style: TextStyle(color: Colors.amber, fontSize: 18));
+                        }
+                        return CircularProgressIndicator();
+                      }),
+
+                  AnimatedContainer(
+                    width: double.infinity,
+                    height: selected ? 100.0 : 200.0,
+                    color: selected ? Colors.red : Colors.blue,
+                    alignment: selected ? Alignment.center : AlignmentDirectional.centerStart,
+                    duration: const Duration(seconds: 2),
+                    curve: Curves.fastOutSlowIn,
+                    child: const FlutterLogo(size: 75),
+                  ),
+                  AnimatedBuilder(
+                    animation: animation,
+                    child: Text('$welcomeText'),
+                    builder: (context, child) => Container(
+                      height: animation.value / 3, width: double.infinity,
+                      child: SizedBox(child: FittedBox(child: Text('$welcomeText', style: TextStyle(color: Colors.blue, fontSize: 22),)),
+                      ),
+                    ),
+                  ),
+                  Consumer<CounterModel>(
+                    builder: (context, modelClass, child) => Stack(
+                      children: [
+                        if (child != null) child,
+                        Text(getTextToDisplay(context), style: Theme.of(context).textTheme.bodyText1,),
+                      ],
+                    ),
+                    //child: SomeExpensiveWidget(),
+                  ),
+                  SizedBox(width: double.infinity, child: SelectionButton()),
+                  SizedBox(width: double.infinity, child: ElevatedButton(
+                        onPressed: () {_ModalBottomSheetDemo()._showModalBottomSheet(context);},
+                        child: Text("BottomSheetButtonText"),
+                      )),
+                  Text('Jokes: ', style: TextStyle(color: Colors.blue, fontSize: 25),),
+                  FutureBuilder<List<Joke>>(
+                    future: futureJokes,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        final lItems = snapshot.data;
+                        return _myListView(context, lItems);
+                      } else if (snapshot.hasError) {
+                        return Text("${snapshot.error}");
+                      }
+                      return CircularProgressIndicator();
+                    },
+                  )
+                ],
+              ),
             ),
           ),
         ),
@@ -149,9 +198,8 @@ class _MyHomePageState extends State<HomePage>
   }
 
   String getTextToDisplay(BuildContext context) {
-
-    final counter = Provider.of<ModelClass>(context, listen: false).counter;
-    switch(counter){
+    final counter = Provider.of<CounterModel>(context, listen: false).counter;
+    switch (counter) {
       case 0:
         return 'FloatingActionButton is not clicked yet.';
       case 1:
@@ -159,8 +207,6 @@ class _MyHomePageState extends State<HomePage>
       default:
         return 'FloatingActionButton is clicked $counter times.';
     }
-
-
   }
 }
 
@@ -171,10 +217,18 @@ Expanded _myListView(BuildContext context, List<Joke> jokes) {
     height: 200,
     child: ListView.builder(
       itemBuilder: (context, position) {
-        return Card(
-            child: Text(
-                "Q: ${jokes[position].setup} \n A: ${jokes[position].punchline}",
-                style: TextStyle(color: Colors.black, fontSize: 22)));
+        return GestureDetector(
+          child: Card(
+              child: Text(
+                  "Q: ${jokes[position].setup} \n A: ${jokes[position].punchline}",
+                  style: TextStyle(color: Colors.black, fontSize: 22))),
+          onTap: () {
+            ScaffoldMessenger.of(context)
+              ..removeCurrentSnackBar()
+              ..showSnackBar(
+                  SnackBar(content: Text("Item ${position + 1} clicked")));
+          },
+        );
       },
       itemCount: jokes.length,
     ),
@@ -195,7 +249,7 @@ class SelectionButton extends StatelessWidget {
   _navigateAndDisplaySelection(BuildContext context) async {
     final result = await Navigator.pushNamed(
       context,
-      PassArgumentsScreen.routeName,
+      ExtractArgumentsScreen.routeName,
       arguments: CustomArguments(
         'Accept Arguments Screen',
         'This message is extracted in the onGenerateRoute function.',
@@ -213,8 +267,7 @@ class ExtractArgumentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final CustomArguments args =
-        ModalRoute.of(context).settings.arguments as CustomArguments;
+    final CustomArguments args = ModalRoute.of(context).settings.arguments as CustomArguments;
 
     return Scaffold(
       appBar: AppBar(
@@ -238,11 +291,7 @@ class PassArgumentsScreen extends StatelessWidget {
   final String title;
   final String message;
 
-  const PassArgumentsScreen({
-    key,
-    @required this.title,
-    @required this.message,
-  }) : super(key: key);
+  const PassArgumentsScreen({key, @required this.title, @required this.message,}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -255,6 +304,35 @@ class PassArgumentsScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                Padding(padding: const EdgeInsets.all(8.0), child: Text('Counter'),),
+                BlocBuilder<CounterBloc, CounterState>(
+                  builder: (context, CounterState state) {
+                    return Center(
+                      child: Text(
+                        state.counter.toString(),
+                        style: TextStyle(fontSize: 24.0),
+                      ),
+                    );
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      BlocProvider.of<CounterBloc>(context).add(Increment());
+                    },
+                    child: Text('Increment Counter'),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      BlocProvider.of<CounterBloc>(context).add(Decrement());
+                    },
+                    child: Text('Decrement Counter'),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
@@ -281,13 +359,6 @@ class PassArgumentsScreen extends StatelessWidget {
           Navigator.pop(context, 'Back Press');
         });
   }
-}
-
-class CustomArguments {
-  final String title;
-  final String message;
-
-  CustomArguments(this.title, this.message);
 }
 
 class _BottomSheetContent extends StatelessWidget {
@@ -353,35 +424,5 @@ class _ModalBottomSheetDemo extends StatelessWidget {
   }
 }
 
-Future<List<Joke>> fetchJoke() async {
-  final response =
-      await http.get(Uri.https('official-joke-api.appspot.com', 'jokes/ten'));
 
-  if (response.statusCode == 200) {
-    return List.from(jsonDecode(response.body).map((it) => Joke.fromJson(it)));
-  } else {
-    throw Exception('Failed to load album');
-  }
-}
 
-class Joke {
-  final int id;
-  final String type;
-  final String setup;
-  final String punchline;
-
-  Joke(
-      {@required this.id,
-      @required this.type,
-      @required this.setup,
-      @required this.punchline});
-
-  factory Joke.fromJson(Map<String, dynamic> json) {
-    return Joke(
-      id: json['id'],
-      type: json['type'],
-      setup: json['setup'],
-      punchline: json['punchline'],
-    );
-  }
-}

@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/bloc/CounterBloc.dart';
+import 'package:flutter_app/bloc/UserBloc.dart';
+import 'package:flutter_app/model/CustomArguments.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'Home.dart';
-import 'Model.dart';
+import 'model/CounterModel.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ModelClass(),
-      child: MyApp(),
-    ));
+      // ChangeNotifierProvider(
+      //   create: (context) => ModelClass(),
+      //   child: MyApp(),
+      // ));
 
-    //Or can be used as
-    // MultiProvider(
-    //   providers: [
-    //         ChangeNotifierProvider(create: (context) => ModelClass()),
-    //   ],
-    //   child: MyApp(),
-    // ));
-
+      //Or can be used as
+      MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => CounterModel()),
+      BlocProvider<CounterBloc>(create: (context) => CounterBloc()),
+      BlocProvider<UserBloc>(create: (context) => UserBloc())
+    ],
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -26,7 +31,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: true,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+          primarySwatch: Colors.blue,
+          backgroundColor: Colors.lime,
+          accentColor: Colors.teal,
+          fontFamily: "Montserrat",
+          textTheme: TextTheme(
+              button: TextStyle(color: Colors.teal, fontSize: 16),
+              bodyText1: TextStyle(color: Colors.indigo, fontSize: 16),
+              bodyText2: TextStyle(color: Colors.lightBlue, fontSize: 15)),
+       appBarTheme: AppBarTheme(
+         color: Colors.indigo
+       )
       ),
       home: LoginDemo(),
       routes: {
@@ -71,14 +86,14 @@ class _LoginDemoState extends State<LoginDemo> {
               padding: const EdgeInsets.only(top: 60.0),
               child: Center(
                 child: Container(
-                    width: 200,
-                    height: 150,
-                    child: Image.asset('asset/images/ic_launcher.png')),
+                    padding: EdgeInsets.all(15),
+                    child: FlutterLogo(size: 90) //Image.asset('asset/images/ic_launcher.png')
+                    ),
               ),
             ),
             Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-              padding: EdgeInsets.symmetric(horizontal: 15),
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               child: TextField(
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
@@ -88,7 +103,7 @@ class _LoginDemoState extends State<LoginDemo> {
             ),
             Padding(
               padding: const EdgeInsets.only(
-                  left: 15.0, right: 15.0, top: 15, bottom: 0),
+                  left: 15.0, right: 15.0, top: 15, bottom: 15),
               //padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
                 obscureText: true,
@@ -119,7 +134,7 @@ class _LoginDemoState extends State<LoginDemo> {
                 },
                 child: Text(
                   'Login',
-                  style: TextStyle(color: Colors.white, fontSize: 25),
+                  style: TextStyle(color: Colors.white, fontSize: 22),
                 ),
               ),
             ),

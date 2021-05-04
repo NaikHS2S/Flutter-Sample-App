@@ -1,0 +1,1 @@
+enum UserInfoEvents { fetchUser, }

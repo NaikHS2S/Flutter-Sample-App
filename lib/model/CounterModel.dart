@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-class ModelClass extends ChangeNotifier {
-
+class CounterModel extends ChangeNotifier {
   int counter = 0;
-
   void increment() {
     counter++;
     notifyListeners();
   }
-  
 }
+
+
