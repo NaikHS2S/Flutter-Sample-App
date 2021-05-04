@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/bloc/CounterBloc.dart';
 import 'package:flutter_app/bloc/UserBloc.dart';
+import 'package:flutter_app/db/SQLiteHelper.dart';
 import 'package:flutter_app/model/CustomArguments.dart';
+import 'package:flutter_app/model/Dog.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'Home.dart';
 import 'model/CounterModel.dart';
+import 'dart:async';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 void main() {
+
+  WidgetsFlutterBinding.ensureInitialized();
+  getDatabase();
+
   runApp(
       // ChangeNotifierProvider(
       //   create: (context) => ModelClass(),
@@ -24,6 +33,21 @@ void main() {
     child: MyApp(),
   ));
 }
+
+Future<Database> getDatabase() async {
+ if(SQLiteHelper.dataBase == null) {
+   SQLiteHelper.dataBase = openDatabase(
+     join(await getDatabasesPath(), 'doggie_database.db'),
+     onCreate: (db, version) {
+       return db.execute(
+         "CREATE TABLE dogs(id INTEGER PRIMARY KEY, name TEXT, age INTEGER)",);
+     },
+     version: 1,
+   );
+ }
+ return SQLiteHelper.dataBase;
+}
+
 
 class MyApp extends StatelessWidget {
   @override
@@ -67,11 +91,13 @@ class MyApp extends StatelessWidget {
 }
 
 class LoginDemo extends StatefulWidget {
+
   @override
   _LoginDemoState createState() => _LoginDemoState();
 }
 
 class _LoginDemoState extends State<LoginDemo> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,6 +153,9 @@ class _LoginDemoState extends State<LoginDemo> {
                   color: Colors.blue, borderRadius: BorderRadius.circular(20)),
               child: TextButton(
                 onPressed: () {
+
+                  doDBOperation();
+
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -147,4 +176,19 @@ class _LoginDemoState extends State<LoginDemo> {
       ),
     );
   }
+}
+
+void doDBOperation() async {
+  var sqLiteHelper = SQLiteHelper();
+
+  var fido = Dog(id: 0, name: 'Fido', age: 35,);
+  await sqLiteHelper.insertDog(fido);
+  print(await sqLiteHelper.dogs());
+  fido = Dog(id: fido.id, name: fido.name, age: fido.age + 7,);
+  await sqLiteHelper.updateDog(fido);
+
+  print(await sqLiteHelper.dogs());
+  await sqLiteHelper.deleteDog(fido.id);
+  print(await sqLiteHelper.dogs());
+
 }

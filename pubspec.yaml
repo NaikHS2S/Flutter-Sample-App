@@ -33,6 +33,8 @@ dependencies:
   flutter_bloc: ^6.1.1
   json_annotation: ^4.0.1
   build_runner: 2.0.1
+  sqflite: any
+  path_provider: any
 
 dev_dependencies:
   flutter_test:
