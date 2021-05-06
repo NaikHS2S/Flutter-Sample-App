@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/bloc/counter_bloc.dart';
-import 'package:flutter_app/bloc/UserBloc.dart';
+import 'package:flutter_app/bloc/user_bloc.dart';
 import 'package:flutter_app/db/sql_lite_helper.dart';
 import 'package:flutter_app/home.dart';
 import 'package:flutter_app/model/custom_arguments.dart';

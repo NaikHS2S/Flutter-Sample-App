@@ -5,7 +5,7 @@ import 'package:flutter_app/events/counter_events.dart';
 import 'package:flutter_app/model/custom_arguments.dart';
 import 'package:flutter_app/model/joke.dart';
 import 'package:flutter_app/state/counter_state.dart';
-import 'package:flutter_app/bloc/UserBloc.dart';
+import 'package:flutter_app/bloc/user_bloc.dart';
 import 'package:flutter_app/events/user_events.dart';
 import 'package:flutter_app/state/user_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
