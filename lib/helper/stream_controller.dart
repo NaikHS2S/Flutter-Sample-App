@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:flutter_app/events/CounterEvent.dart';
-import 'package:flutter_app/state/CounterState.dart';
+import 'package:flutter_app/events/counter_events.dart';
+import 'package:flutter_app/state/counter_state.dart';
 
 class StreamControllerHelper{
 

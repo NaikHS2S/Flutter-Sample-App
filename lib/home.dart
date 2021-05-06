@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/api/Services.dart';
-import 'package:flutter_app/bloc/CounterBloc.dart';
-import 'package:flutter_app/events/CounterEvent.dart';
-import 'package:flutter_app/model/CustomArguments.dart';
-import 'package:flutter_app/model/Joke.dart';
-import 'package:flutter_app/state/CounterState.dart';
+import 'package:flutter_app/api/services.dart';
+import 'package:flutter_app/bloc/counter_bloc.dart';
+import 'package:flutter_app/events/counter_events.dart';
+import 'package:flutter_app/model/custom_arguments.dart';
+import 'package:flutter_app/model/joke.dart';
+import 'package:flutter_app/state/counter_state.dart';
 import 'package:flutter_app/bloc/UserBloc.dart';
-import 'package:flutter_app/events/UserInfoEvents.dart';
-import 'package:flutter_app/state/UserState.dart';
+import 'package:flutter_app/events/user_events.dart';
+import 'package:flutter_app/state/user_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/animation.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_app/model/CounterModel.dart';
+import 'package:flutter_app/model/counter_model.dart';
 import 'dart:async';
 
 class HomePage extends StatefulWidget {

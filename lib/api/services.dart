@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_app/model/Joke.dart';
-import 'package:flutter_app/model/UserInfo.dart';
+import 'package:flutter_app/model/joke.dart';
+import 'package:flutter_app/model/user_info.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 

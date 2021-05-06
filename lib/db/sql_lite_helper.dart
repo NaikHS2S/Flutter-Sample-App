@@ -1,5 +1,5 @@
 import 'package:flutter_app/main.dart';
-import 'package:flutter_app/model/Dog.dart';
+import 'package:flutter_app/model/dog.dart';
 import 'package:sqflite/sqflite.dart';
 
 class SQLiteHelper{

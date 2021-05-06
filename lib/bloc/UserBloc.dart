@@ -1,11 +1,11 @@
 import 'dart:io';
-import 'package:flutter_app/api/Exceptions.dart';
-import 'package:flutter_app/api/Services.dart';
-import 'package:flutter_app/model/UserInfo.dart';
-import 'package:flutter_app/state/UserState.dart';
+import 'package:flutter_app/api/exceptions.dart';
+import 'package:flutter_app/api/services.dart';
+import 'package:flutter_app/model/user_info.dart';
+import 'package:flutter_app/state/user_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../events/UserInfoEvents.dart';
+import '../events/user_events.dart';
 
 class UserBloc extends Bloc<UserInfoEvents, UserState> {
   NetworkRepo networkRepo = UserServices();
