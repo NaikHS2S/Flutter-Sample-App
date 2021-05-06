@@ -79,7 +79,8 @@ class _MyHomePageState extends State<HomePage>
             icon: const Icon(Icons.add_alert),
             tooltip: 'Show Snack bar',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('This is a Snack bar.')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('This is a Snack bar.')));
             },
           )
         ],
@@ -101,23 +102,25 @@ class _MyHomePageState extends State<HomePage>
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-
                   BlocBuilder<UserBloc, UserState>(
                       builder: (BuildContext context, UserState state) {
-                        if (state is UserListError) {
-                          return Text(state.error.message, style: TextStyle(color: Colors.amber, fontSize: 18));
-                        }
-                        if (state is Loaded) {
-                          return Text(state.userInfoList[0].title, style: TextStyle(color: Colors.amber, fontSize: 18));
-                        }
-                        return CircularProgressIndicator();
-                      }),
-
+                    if (state is UserListError) {
+                      return Text(state.error.message,
+                          style: TextStyle(color: Colors.amber, fontSize: 18));
+                    }
+                    if (state is Loaded) {
+                      return Text(state.userInfoList[0].title,
+                          style: TextStyle(color: Colors.amber, fontSize: 18));
+                    }
+                    return CircularProgressIndicator();
+                  }),
                   AnimatedContainer(
                     width: double.infinity,
                     height: selected ? 100.0 : 200.0,
                     color: selected ? Colors.red : Colors.blue,
-                    alignment: selected ? Alignment.center : AlignmentDirectional.centerStart,
+                    alignment: selected
+                        ? Alignment.center
+                        : AlignmentDirectional.centerStart,
                     duration: const Duration(seconds: 2),
                     curve: Curves.fastOutSlowIn,
                     child: const FlutterLogo(size: 75),
@@ -126,8 +129,14 @@ class _MyHomePageState extends State<HomePage>
                     animation: animation,
                     child: Text('$welcomeText'),
                     builder: (context, child) => Container(
-                      height: animation.value / 3, width: double.infinity,
-                      child: SizedBox(child: FittedBox(child: Text('$welcomeText', style: TextStyle(color: Colors.blue, fontSize: 22),)),
+                      height: animation.value / 3,
+                      width: double.infinity,
+                      child: SizedBox(
+                        child: FittedBox(
+                            child: Text(
+                          '$welcomeText',
+                          style: TextStyle(color: Colors.blue, fontSize: 22),
+                        )),
                       ),
                     ),
                   ),
@@ -135,17 +144,28 @@ class _MyHomePageState extends State<HomePage>
                     builder: (context, modelClass, child) => Stack(
                       children: [
                         if (child != null) child,
-                        Text(getTextToDisplay(context), style: Theme.of(context).textTheme.bodyText1,),
+                        Text(
+                          getTextToDisplay(context),
+                          style: Theme.of(context).textTheme.bodyText1,
+                        ),
                       ],
                     ),
                     //child: SomeExpensiveWidget(),
                   ),
                   SizedBox(width: double.infinity, child: SelectionButton()),
-                  SizedBox(width: double.infinity, child: ElevatedButton(
-                        onPressed: () {_ModalBottomSheetDemo()._showModalBottomSheet(context);},
+                  SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _ModalBottomSheetDemo()
+                              ._showModalBottomSheet(context);
+                        },
                         child: Text("BottomSheetButtonText"),
                       )),
-                  Text('Jokes: ', style: TextStyle(color: Colors.blue, fontSize: 25),),
+                  Text(
+                    'Jokes: ',
+                    style: TextStyle(color: Colors.blue, fontSize: 25),
+                  ),
                   FutureBuilder<List<Joke>>(
                     future: futureJokes,
                     builder: (context, snapshot) {
@@ -267,21 +287,25 @@ class ExtractArgumentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final CustomArguments args = ModalRoute.of(context).settings.arguments as CustomArguments;
+    final CustomArguments args =
+        ModalRoute.of(context).settings.arguments as CustomArguments;
 
-    return Scaffold(
+    return WillPopScope(
+        child: Scaffold(
       appBar: AppBar(
         title: Text("Second Route : ${args.title}"),
       ),
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, "Back pressed");
           },
           child: Text('Go back!'),
         ),
       ),
-    );
+    ), onWillPop: () {
+      Navigator.pop(context, 'Back Press');
+    });
   }
 }
 
@@ -291,7 +315,11 @@ class PassArgumentsScreen extends StatelessWidget {
   final String title;
   final String message;
 
-  const PassArgumentsScreen({key, @required this.title, @required this.message,}) : super(key: key);
+  const PassArgumentsScreen({
+    key,
+    @required this.title,
+    @required this.message,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -304,7 +332,10 @@ class PassArgumentsScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Padding(padding: const EdgeInsets.all(8.0), child: Text('Counter'),),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Counter'),
+                ),
                 BlocBuilder<CounterBloc, CounterState>(
                   builder: (context, CounterState state) {
                     return Center(
@@ -423,6 +454,3 @@ class _ModalBottomSheetDemo extends StatelessWidget {
     );
   }
 }
-
-
-
