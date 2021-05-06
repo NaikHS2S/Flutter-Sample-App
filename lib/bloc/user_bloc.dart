@@ -1,10 +1,9 @@
 import 'dart:io';
-import 'package:flutter_app/api/exceptions.dart';
-import 'package:flutter_app/api/services.dart';
-import 'package:flutter_app/model/user_info.dart';
-import 'package:flutter_app/state/user_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import '../api/exceptions.dart';
+import '../api/services.dart';
+import '../model/user_info.dart';
+import '../state/user_state.dart';
 import '../events/user_events.dart';
 
 class UserBloc extends Bloc<UserInfoEvents, UserState> {
