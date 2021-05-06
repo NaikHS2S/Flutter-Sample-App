@@ -152,7 +152,18 @@ class _MyHomePageState extends State<HomePage>
                     ),
                     //child: SomeExpensiveWidget(),
                   ),
-                  SizedBox(width: double.infinity, child: SelectionButton()),
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0, bottom: 8),
+                child: SizedBox(width: double.infinity, child: SelectionButton())),
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 16),
+                child:
+                  SizedBox(width: double.infinity, child: ElevatedButton(
+                    onPressed: () {
+                      navigateAndDisplaySelection(context, true);
+                    },
+                    child: Text('Navigate to next route'),
+                  ))),
                   SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -256,30 +267,31 @@ Expanded _myListView(BuildContext context, List<Joke> jokes) {
 }
 
 class SelectionButton extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        _navigateAndDisplaySelection(context);
+        navigateAndDisplaySelection(context);
       },
-      child: Text('Navigate to next route'),
+      child: Text('Navigate to first route'),
     );
   }
+}
 
-  _navigateAndDisplaySelection(BuildContext context) async {
-    final result = await Navigator.pushNamed(
-      context,
-      ExtractArgumentsScreen.routeName,
-      arguments: CustomArguments(
-        'Accept Arguments Screen',
-        'This message is extracted in the onGenerateRoute function.',
-      ),
-    );
+navigateAndDisplaySelection(BuildContext context, [bool type = false]) async {
+  final result = await Navigator.pushNamed(
+    context,
+    type ? PassArgumentsScreen.routeName : ExtractArgumentsScreen.routeName,
+    arguments: CustomArguments(
+      'Accept Arguments Screen',
+      'This message is extracted in the onGenerateRoute function.',
+    ),
+  );
 
-    ScaffoldMessenger.of(context)
-      ..removeCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text("$result")));
-  }
+  ScaffoldMessenger.of(context)
+    ..removeCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text("$result")));
 }
 
 class ExtractArgumentsScreen extends StatelessWidget {
